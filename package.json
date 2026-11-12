@@ -1,22 +1,40 @@
 {
   "name": "skycast-init",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "index.js",
   "dependencies": {
+    "@expo/vector-icons": "^15.1.1",
+    "@react-native-async-storage/async-storage": "^1.23.1",
+    "@tanstack/react-query": "^5.107.1",
     "expo": "~58.0.24",
+    "expo-linear-gradient": "~58.0.4",
+    "expo-localization": "~16.0.0",
     "expo-status-bar": "~58.0.5",
+    "i18next": "^27.1.1",
     "react": "19.3.0",
-    "react-native": "0.88.1"
+    "react-dom": "19.3.0",
+    "react-i18next": "^18.0.1",
+    "react-native": "0.88.1",
+    "react-native-paper": "^5.12.3",
+    "react-native-safe-area-context": "^5.11.1",
+    "react-native-web": "^0.21.4",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
+    "@types/react-native": "^0.73.0",
+    "eslint": "^8.57.1",
+    "eslint-config-expo": "~58.0.4",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "lint": "npx eslint .",
+    "probe": "node scripts/probe-weather.mjs"
   },
   "private": true
 }
