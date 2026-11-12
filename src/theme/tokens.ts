@@ -109,6 +109,51 @@ export const typography: Typography = {
   },
 };
 
+/** 玻璃卡片的颜色集合；浅色与深色主题各一套 */
+export type GlassPalette = {
+  backgroundColor: string;
+  borderColor: string;
+  textPrimary: string;
+  textSecondary: string;
+};
+
+export type GlassTokens = {
+  light: GlassPalette;
+  dark: GlassPalette;
+};
+
+/** 三段渐变，顺序为顶部 -> 底部 */
+export type WeatherGradient = readonly [string, string, string];
+
+export type WeatherGradientTokens = {
+  dayClear: WeatherGradient;
+  nightClear: WeatherGradient;
+  dayCloudy: WeatherGradient;
+  nightCloudy: WeatherGradient;
+};
+
+export const glass: GlassTokens = {
+  light: {
+    backgroundColor: 'rgba(255, 255, 255, 0.30)',
+    borderColor: 'rgba(255, 255, 255, 0.50)',
+    textPrimary: '#FFFFFF',
+    textSecondary: 'rgba(255, 255, 255, 0.78)',
+  },
+  dark: {
+    backgroundColor: 'rgba(0, 0, 0, 0.24)',
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+    textPrimary: '#FFFFFF',
+    textSecondary: 'rgba(255, 255, 255, 0.72)',
+  },
+};
+
+export const weatherGradient: WeatherGradientTokens = {
+  dayClear: ['#1B6CD6', '#3F8BE8', '#8FC4F4'],
+  nightClear: ['#08152F', '#142A52', '#25406E'],
+  dayCloudy: ['#51677E', '#748A9F', '#9FB0C0'],
+  nightCloudy: ['#171F2B', '#263243', '#3A4A5E'],
+};
+
 export const brandColors: BrandColors = {
   primary: '#2F80ED',
   primaryVariant: '#5699FF',
