@@ -1,17 +1,17 @@
-import type { JSX } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTranslation } from 'react-i18next';
-import { useTheme } from 'react-native-paper';
-import { borderRadius, MIN_TOUCH_TARGET, spacing } from '../../theme/tokens';
-import type { Location } from '../../types/location';
+import type { JSX } from "react";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "react-native-paper";
+import { borderRadius, MIN_TOUCH_TARGET, spacing } from "../../theme/tokens";
+import type { Location } from "../../types/location";
 
 /** 圆点视觉尺寸；触控区由外层 Pressable 统一放大到 44 */
 const DOT_SIZE = 8;
 /** GPS 图标尺寸，比圆点略大以便辨认 */
 const GPS_ICON_SIZE = 14;
 /** 圆点之间的间距 */
-const DOT_GAP = 6;
+const DOT_GAP = 1;
 /** 满足最小触控面积的不可见热区 */
 const DOT_TOUCH_SIZE = MIN_TOUCH_TARGET;
 
@@ -46,7 +46,7 @@ export function LocationDots({
       {locations.map((location) => {
         const selected = location.id === activeId;
         const label =
-          location.name === '' ? t('location.current') : location.name;
+          location.name === "" ? t("location.current") : location.name;
 
         return (
           <Pressable
@@ -57,7 +57,7 @@ export function LocationDots({
             onPress={() => onSelect(location.id)}
             style={({ pressed }) => [styles.item, pressed && styles.pressed]}
           >
-            {location.source === 'gps' ? (
+            {location.source === "gps" ? (
               <MaterialCommunityIcons
                 name="crosshairs-gps"
                 size={GPS_ICON_SIZE}
@@ -82,19 +82,19 @@ export function LocationDots({
 
 const styles = StyleSheet.create({
   scroll: {
-    maxWidth: '50%',
-    alignSelf: 'center',
+    maxWidth: "50%",
+    alignSelf: "center",
   },
   content: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: DOT_GAP,
     paddingHorizontal: spacing.xs,
   },
   item: {
     width: DOT_TOUCH_SIZE,
     height: DOT_TOUCH_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   pressed: {
     opacity: 0.6,

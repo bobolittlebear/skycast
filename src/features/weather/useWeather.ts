@@ -12,6 +12,10 @@ export interface UseWeatherResult {
   isLoading: boolean;
   weatherError: AppError | null;
   airError: AppError | null;
+  /** 两个 query 中较新的成功抓取时间；无数据时为 0 */
+  weatherUpdatedAt: number;
+  /** 任一 query 正在后台刷新；首次加载不算 */
+  isRefetching: boolean;
   refetch: () => void;
 }
 
@@ -44,12 +48,21 @@ export function useWeather(lat: number, lon: number): UseWeatherResult {
     void refetchAir();
   }, [refetchWeather, refetchAir]);
 
+  // 缓存恢复后 dataUpdatedAt 仍是上次成功时间，正好用于展示数据时效
+  const weatherUpdatedAt = Math.max(
+    weatherQuery.dataUpdatedAt,
+    airQuery.dataUpdatedAt
+  );
+  const isRefetching = weatherQuery.isRefetching || airQuery.isRefetching;
+
   return {
     weather: weatherQuery.data,
     air: airQuery.data,
     isLoading: weatherQuery.isLoading || airQuery.isLoading,
     weatherError: weatherQuery.error ? toAppError(weatherQuery.error) : null,
     airError: airQuery.error ? toAppError(airQuery.error) : null,
+    weatherUpdatedAt,
+    isRefetching,
     refetch,
   };
 }

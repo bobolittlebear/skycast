@@ -1,9 +1,11 @@
 import { QueryClient } from '@tanstack/react-query';
 import { Platform } from 'react-native';
 import { toAppError } from '../api/errors';
+import { PERSIST_MAX_AGE } from './persister';
 
 const STALE_TIME_MS = 10 * 60 * 1000;
-const GC_TIME_MS = 30 * 60 * 1000;
+// 与持久化窗口保持一致，避免查询在缓存过期前就被内存回收
+const GC_TIME_MS = PERSIST_MAX_AGE;
 const MAX_RETRIES = 2;
 const MAX_RETRY_DELAY_MS = 4000;
 

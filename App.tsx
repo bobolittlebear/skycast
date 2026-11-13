@@ -1,4 +1,4 @@
-import { QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { useState, type JSX } from "react";
 import { StyleSheet, useColorScheme, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
@@ -15,17 +15,29 @@ import {
 } from "./src/features/settings/SettingsContext";
 import { WeatherScreen } from "./src/features/weather/WeatherScreen";
 import { queryClient } from "./src/services/query/queryClient";
+import {
+  CACHE_BUSTER,
+  PERSIST_MAX_AGE,
+  persister,
+} from "./src/services/query/persister";
 
 export default function App(): JSX.Element {
   return (
     <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{
+          persister,
+          maxAge: PERSIST_MAX_AGE,
+          buster: CACHE_BUSTER,
+        }}
+      >
         <SettingsProvider>
           <LocationsProvider>
             <AppContent />
           </LocationsProvider>
         </SettingsProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </SafeAreaProvider>
   );
 }

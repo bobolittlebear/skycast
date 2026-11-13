@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 import {
-  ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useTranslation } from "react-i18next";
-import { Button, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LocationDots } from "../../components/locations/LocationDots";
 import { AqiCard } from "../../components/weather/AqiCard";
@@ -17,7 +17,9 @@ import { GlassCard } from "../../components/weather/GlassCard";
 import { HourlyStrip } from "../../components/weather/HourlyStrip";
 import { MetricCard } from "../../components/weather/MetricCard";
 import { WeatherBackground } from "../../components/weather/WeatherBackground";
+import { WeatherErrorView } from "../../components/weather/WeatherErrorView";
 import { WeatherHero } from "../../components/weather/WeatherHero";
+import { WeatherSkeleton } from "../../components/weather/WeatherSkeleton";
 import {
   formatPercent,
   formatSpeed,
@@ -26,7 +28,7 @@ import {
 } from "../../lib/format";
 import { formatHourShort } from "../../lib/time";
 import { uvIndexToLevel } from "../../lib/uv";
-import { spacing } from "../../theme/tokens";
+import { glass, spacing, typography } from "../../theme/tokens";
 import { useSettings } from "../settings/SettingsContext";
 import { DEFAULT_LOCATION } from "../locations/defaultLocation";
 import { useLocations } from "../locations/LocationsContext";
@@ -36,6 +38,18 @@ import { useWeather } from "./useWeather";
 const BOTTOM_EXTRA_PADDING = 120;
 
 /**
+ * 客户端抓取时间，与地点当地时间无关；只用于提示数据新鲜度。
+ * 按设备默认时区输出 HH:mm，缓存恢复时也不会随地点时区漂移。
+ */
+function formatUpdatedTime(timestamp: number): string {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(new Date(timestamp));
+}
+
+/**
  * 天气主页：按当前选中地点取天气与空气质量，负责加载态、错误重试与各区块组装。
  * 未选中地点时回退上海；空气质量失败不影响其余区块。
  */
@@ -43,53 +57,32 @@ export function WeatherScreen(): JSX.Element {
   const { t } = useTranslation();
   const { lang } = useSettings();
   const theme = useTheme();
+  const palette = theme.dark ? glass.dark : glass.light;
   const insets = useSafeAreaInsets();
   const { locations, activeId, activeLocation, setActiveId } = useLocations();
   // 地点尚未恢复或未选中时回退到上海，保证首屏永远有内容
   const location = activeLocation ?? DEFAULT_LOCATION;
-  const { weather, air, weatherError, refetch } = useWeather(
-    location.lat,
-    location.lon,
-  );
+  const {
+    weather,
+    air,
+    weatherError,
+    weatherUpdatedAt,
+    isRefetching,
+    refetch,
+  } = useWeather(location.lat, location.lon);
 
-  if (weather === undefined && weatherError !== null) {
+  // 无数据也无错误：冷加载或缓存尚未恢复，用与页面结构一致的骨架占位
+  if (weather === undefined && weatherError === null) {
     return (
-      <View
-        style={[
-          styles.centered,
-          {
-            backgroundColor: theme.colors.background,
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-          },
-        ]}
-      >
-        <Text style={[styles.errorText, { color: theme.colors.onBackground }]}>
-          {t("weather.loadFailed")}
-        </Text>
-        <Button mode="contained" onPress={refetch} style={styles.retry}>
-          {t("weather.retry")}
-        </Button>
-      </View>
+      <WeatherBackground>
+        <WeatherSkeleton />
+      </WeatherBackground>
     );
   }
 
-  // 只要天气主数据到达就渲染页面，空气质量卡单独处理加载/失败
+  // 无数据且已有错误：按 AppError 的 code 展示分级文案与重试
   if (weather === undefined) {
-    return (
-      <View
-        style={[
-          styles.centered,
-          {
-            backgroundColor: theme.colors.background,
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-          },
-        ]}
-      >
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
+    return <WeatherErrorView error={weatherError} onRetry={refetch} />;
   }
 
   const current = weather.current;
@@ -112,6 +105,15 @@ export function WeatherScreen(): JSX.Element {
         key={location.id}
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+            accessibilityLabel={t("weather.refresh")}
+          />
+        }
         contentContainerStyle={[
           styles.scrollContent,
           {
@@ -130,6 +132,14 @@ export function WeatherScreen(): JSX.Element {
           weatherCode={current.weatherCode}
           isDay={current.isDay}
         />
+
+        {weatherUpdatedAt > 0 && (
+          <Text style={[styles.updatedAt, { color: palette.textPrimary }]}>
+            {t("weather.updatedAt", {
+              time: formatUpdatedTime(weatherUpdatedAt),
+            })}
+          </Text>
+        )}
 
         <View style={styles.sections}>
           <AqiCard air={air} />
@@ -243,22 +253,14 @@ export function WeatherScreen(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-  },
-  errorText: {
-    fontSize: 17,
-    textAlign: "center",
-  },
-  retry: {
-    minWidth: 120,
-  },
   scroll: {
     flex: 1,
+  },
+  updatedAt: {
+    marginTop: spacing.xs,
+    fontSize: typography.fontSize.xs,
+    textAlign: "center",
+    opacity: 0.7,
   },
   dots: {
     position: "absolute",
