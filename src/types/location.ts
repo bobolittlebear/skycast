@@ -1,5 +1,18 @@
 export type LocationSource = 'search' | 'gps';
 
+/** 地点在某一语言下的展示文本；三个字段都可能缺失 */
+export interface LocationText {
+  name?: string;
+  admin1?: string;
+  country?: string;
+}
+
+/** 搜索时同时取回的中英文本，供切换语言后直接展示，不再重新请求 */
+export interface LocalizedLocationText {
+  zh?: LocationText;
+  en?: LocationText;
+}
+
 /** 应用内的统一地点模型；搜索与 GPS 定位共用 */
 export interface Location {
   /** geocoding 的数字 id；GPS 地点使用 `${lat4},${lon4}` */
@@ -14,6 +27,11 @@ export interface Location {
   isCurrent?: boolean;
   /** geocoding 返回的人口数，仅用于搜索结果排序，不参与展示 */
   population?: number;
+  /**
+   * 中英双语展示文本，仅搜索结果携带；GPS 地点每次按当前语言反查，无需存储。
+   * 旧版本持久化的数据没有该字段，展示层回退到 name / admin1 / country。
+   */
+  names?: LocalizedLocationText;
 }
 
 /** addLocation 的结果：写入成功 / 已存在并切换 / 达到数量上限 */

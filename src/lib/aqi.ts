@@ -59,6 +59,9 @@ const LEVELS: readonly AqiLevelDefinition[] = [
   },
 ];
 
+/** 色带右端对应的 AQI 上限；超过该值一律贴在最右侧 */
+const BAND_POSITION_MAX = 500;
+
 /**
  * 美国 EPA AQI 六档分级：
  * 0-50 优、51-100 良、101-150 轻度污染、151-200 中度污染、
@@ -79,4 +82,40 @@ export function usAqiToLevel(aqi: number): AqiLevel {
     color: level.color,
     textColor: level.textColor,
   };
+}
+
+/**
+ * 当前 AQI 在六段等宽色带上的相对位置，取值 [0, 1]。
+ *
+ * 六段宽度相同，但各档对应的 AQI 区间宽度不同（50/50/50/50/100/200），
+ * 因此不能直接用 aqi / 500，必须先在档内算出偏移比例再叠加档位索引。
+ * 最后一个档位的上限按 BAND_POSITION_MAX 计算，超出部分贴在最右侧。
+ */
+export function aqiBandPosition(aqi: number): number {
+  const value = Number.isFinite(aqi)
+    ? Math.min(Math.max(aqi, 0), BAND_POSITION_MAX)
+    : 0;
+
+  // 每档的下界是上一档上限 + 1（AQI 为整数刻度）
+  let lower = 0;
+
+  for (let index = 0; index < LEVELS.length; index += 1) {
+    const level = LEVELS[index];
+    if (level === undefined) {
+      continue;
+    }
+
+    const isLast = index === LEVELS.length - 1;
+    const upper = isLast ? BAND_POSITION_MAX : level.max;
+
+    if (value <= upper) {
+      const ratio = (value - lower) / (upper - lower);
+      const clamped = Math.min(Math.max(ratio, 0), 1);
+      return (index + clamped) / LEVELS.length;
+    }
+
+    lower = upper + 1;
+  }
+
+  return 1;
 }

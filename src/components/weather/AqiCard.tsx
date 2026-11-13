@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "react-native-paper";
 import { roundTemp } from "../../lib/format";
-import { usAqiToLevel } from "../../lib/aqi";
+import { aqiBandPosition, usAqiToLevel } from "../../lib/aqi";
 import { glass, spacing } from "../../theme/tokens";
 import type { AirQualityBundle } from "../../types/weather";
 import { GlassCard } from "./GlassCard";
@@ -57,6 +57,17 @@ export function AqiCard({ air }: AqiCardProps): JSX.Element {
                 ]}
               />
             ))}
+            {/* 指示当前 AQI 在色带上的位置；超出右端时贴边显示 */}
+            <View
+              pointerEvents="none"
+              style={[
+                styles.marker,
+                {
+                  left: `${aqiBandPosition(air.aqi) * 100}%`,
+                  backgroundColor: palette.textPrimary,
+                },
+              ]}
+            />
           </View>
 
           <View style={styles.summary}>
@@ -87,6 +98,15 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 6,
     borderRadius: 3,
+  },
+  marker: {
+    position: "absolute",
+    // 比色带高出上下各 3，形成一根细指针；marginLeft 让指针居中于坐标点
+    top: -3,
+    width: 2,
+    height: 12,
+    borderRadius: 1,
+    marginLeft: -1,
   },
   summary: {
     flexDirection: "row",

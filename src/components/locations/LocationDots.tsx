@@ -9,6 +9,8 @@ import {
   glass,
   spacing,
 } from "../../theme/tokens";
+import { getLocalizedText } from "../../lib/location";
+import { useSettings } from "../../features/settings/SettingsContext";
 import type { Location } from "../../types/location";
 
 /** 单个圆点的视觉尺寸；整条底栏共用一块玻璃胶囊背景 */
@@ -38,6 +40,7 @@ export function LocationDots({
   onSelect,
 }: LocationDotsProps): JSX.Element {
   const { t } = useTranslation();
+  const { lang } = useSettings();
   const theme = useTheme();
   // 与悬浮按钮共用玻璃配色，保证底部控件观感一致
   const palette = theme.dark ? glass.dark : glass.light;
@@ -57,8 +60,11 @@ export function LocationDots({
     >
       {locations.map((location) => {
         const selected = location.id === activeId;
+        const text = getLocalizedText(location, lang);
         const label =
-          location.name === "" ? t("location.current") : location.name;
+          text.name === undefined || text.name === ""
+            ? t("location.current")
+            : text.name;
 
         return (
           <Pressable

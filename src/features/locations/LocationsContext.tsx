@@ -4,12 +4,20 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type JSX,
   type ReactNode,
 } from 'react';
 import { getCurrentCoords, roundCoordinate } from '../../lib/geo';
-import type { AddLocationResult, Location, LocationsContextValue } from '../../types/location';
+import { fetchLocationById } from '../../services/api/openMeteo/geocoding';
+import type {
+  AddLocationResult,
+  LocalizedLocationText,
+  Location,
+  LocationText,
+  LocationsContextValue,
+} from '../../types/location';
 import { useSettings } from '../settings/SettingsContext';
 import {
   GPS_LOCATION_ID,
@@ -21,6 +29,58 @@ import { useReverseGeocode } from './useReverseGeocode';
 
 /** 用户可保存的地点上限，不含 GPS 项 */
 export const MAX_LOCATIONS = 20;
+
+/** 判断地点主名称是否为中文；用于决定还需要补哪一种语言 */
+const CJK_PATTERN = /[\u4e00-\u9fa5]/;
+
+/** 该地点是否还缺少某一种语言的文本 */
+function needsNameEnrichment(item: Location): boolean {
+  if (item.source !== 'search') {
+    return false;
+  }
+  return item.names?.zh === undefined || item.names?.en === undefined;
+}
+
+/**
+ * 为单个地点补全中英两份文本。
+ *
+ * 搜索接口只返回当前语言的名称，且 name 索引按语言隔离（中文关键词查 en 得到空结果），
+ * 所以只有 id 能跨语言取到同一个地点：缺的那一种语言按 id 请求 /v1/get。
+ * 补不全（网络失败）时返回 null，调用方保留原文本，下次启动再试。
+ */
+async function enrichLocationNames(
+  item: Location
+): Promise<LocalizedLocationText | null> {
+  const baseLang: 'zh' | 'en' = CJK_PATTERN.test(item.name) ? 'zh' : 'en';
+  const otherLang: 'zh' | 'en' = baseLang === 'zh' ? 'en' : 'zh';
+
+  const baseText: LocationText = {
+    name: item.name,
+    admin1: item.admin1,
+    country: item.country,
+  };
+  // 主名称所在的语言直接复用，不必再请求
+  const resolvedBase = item.names?.[baseLang] ?? baseText;
+  const resolvedOther = item.names?.[otherLang];
+
+  if (resolvedOther !== undefined) {
+    return baseLang === 'zh'
+      ? { zh: resolvedBase, en: resolvedOther }
+      : { zh: resolvedOther, en: resolvedBase };
+  }
+
+  const fetched = await fetchLocationById(
+    item.id,
+    otherLang === 'zh' ? 'zh-Hans' : 'en'
+  );
+  if (fetched === null) {
+    return null;
+  }
+
+  return baseLang === 'zh'
+    ? { zh: resolvedBase, en: fetched }
+    : { zh: fetched, en: resolvedBase };
+}
 
 export type { AddLocationResult, LocationsContextValue } from '../../types/location';
 
@@ -59,6 +119,10 @@ export function LocationsProvider({
   const [activeId, setActiveIdState] = useState<string | null>(null);
   const [gpsCoords, setGpsCoords] = useState<DeviceCoords | null>(null);
   const [ready, setReady] = useState(false);
+  // 只用于在补全失败后推进队列，本身不代表任何业务状态
+  const [enrichTick, setEnrichTick] = useState(0);
+  // 记录已发起过补全的 id，避免失败后无限重试
+  const enrichingIds = useRef(new Set<string>());
 
   // 反查结果只用于推导 GPS 项名称，不写入持久化数据
   const reverseQuery = useReverseGeocode(
@@ -129,6 +193,45 @@ export function LocationsProvider({
     }
     void persistLocations(storedLocations, activeId);
   }, [ready, storedLocations, activeId]);
+
+  // 后台补全双语名称：一次只处理一条，写回 state 后由下一轮 effect 继续，
+  // 避免启动时对所有地点并发请求。补全失败时递增 enrichTick 跳过该条，
+  // 否则 state 不变会让队列停在失败的项上。
+  useEffect(() => {
+    if (!ready) {
+      return;
+    }
+
+    const target = storedLocations.find(
+      (item) => needsNameEnrichment(item) && !enrichingIds.current.has(item.id)
+    );
+    if (target === undefined) {
+      return;
+    }
+
+    enrichingIds.current.add(target.id);
+    let cancelled = false;
+
+    void (async () => {
+      const names = await enrichLocationNames(target);
+      if (cancelled) {
+        return;
+      }
+
+      if (names === null) {
+        setEnrichTick((tick) => tick + 1);
+        return;
+      }
+
+      setStoredLocations((prev) =>
+        prev.map((item) => (item.id === target.id ? { ...item, names } : item))
+      );
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, storedLocations, enrichTick]);
 
   const addLocation = useCallback(
     (location: Location): AddLocationResult => {

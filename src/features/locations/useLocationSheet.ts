@@ -56,7 +56,7 @@ export function useLocationSheet(
   const [view, setView] = useState<LocationSheetView>('list');
   const [query, setQuery] = useState('');
   const [message, setMessage] = useState<string | null>(null);
-  const { results, isLoading, error: searchError, debouncedQuery } =
+  const { results, isLoading, error: searchError, effectiveQuery } =
     useGeocodeSearch(query);
   const pendingRequest = useRef(false);
   const pendingGpsSelect = useRef(false);
@@ -161,7 +161,7 @@ export function useLocationSheet(
     );
   }
 
-  const showSearchHint = debouncedQuery.length < GEOCODE_MIN_QUERY_LENGTH;
+  const showSearchHint = effectiveQuery.length < GEOCODE_MIN_QUERY_LENGTH;
   const showSearchEmpty =
     !showSearchHint && !isLoading && searchError === null && results.length === 0;
 

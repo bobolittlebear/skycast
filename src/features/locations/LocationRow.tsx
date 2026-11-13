@@ -9,6 +9,8 @@ import {
   spacing,
   typography,
 } from '../../theme/tokens';
+import { getLocalizedText } from '../../lib/location';
+import { useSettings } from '../settings/SettingsContext';
 import type { Location } from '../../types/location';
 
 /** 地点行最小高度：容纳两行文本并满足触控面积 */
@@ -27,14 +29,12 @@ export interface LocationRowProps {
   trailing?: ReactNode;
 }
 
-/** GPS 反查失败时名称为空，统一兜底为「当前位置」 */
-function getLocationName(location: Location, currentLabel: string): string {
-  return location.name === '' ? currentLabel : location.name;
-}
-
 /** 副标题只拼接实际存在的行政区与国家，避免出现多余分隔符 */
-function getLocationSubtitle(location: Location): string {
-  return [location.admin1, location.country]
+function getLocationSubtitle(
+  admin1: string | undefined,
+  country: string | undefined
+): string {
+  return [admin1, country]
     .filter((part): part is string => part !== undefined && part !== '')
     .join(' · ');
 }
@@ -51,9 +51,15 @@ export function LocationRow({
   trailing,
 }: LocationRowProps): JSX.Element {
   const { t } = useTranslation();
+  const { lang } = useSettings();
   const theme = useTheme();
-  const name = getLocationName(location, t('location.current'));
-  const subtitle = getLocationSubtitle(location);
+  const text = getLocalizedText(location, lang);
+  // GPS 反查失败时名称为空，统一兜底为「当前位置」
+  const name =
+    text.name === undefined || text.name === ''
+      ? t('location.current')
+      : text.name;
+  const subtitle = getLocationSubtitle(text.admin1, text.country);
 
   return (
     <View style={styles.row}>

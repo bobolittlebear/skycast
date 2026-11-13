@@ -3,8 +3,10 @@ import { StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "react-native-paper";
 import { roundTemp } from "../../lib/format";
+import { getLocalizedText } from "../../lib/location";
 import { getWeatherInfo } from "../../lib/wmo";
 import { glass, spacing } from "../../theme/tokens";
+import { useSettings } from "../../features/settings/SettingsContext";
 import type { Location } from "../../types/location";
 
 export interface WeatherHeroProps {
@@ -23,16 +25,11 @@ export interface WeatherHeroProps {
 }
 
 /** 只有区域名确实提供额外信息时才拼接，避免出现「上海 · 上海市」 */
-function formatLocationLabel(location: Location): string {
-  const region = location.admin1;
-  if (
-    region === undefined ||
-    region === location.name ||
-    region.startsWith(location.name)
-  ) {
-    return location.name;
+function formatLocationLabel(name: string, admin1: string | undefined): string {
+  if (admin1 === undefined || admin1 === name || admin1.startsWith(name)) {
+    return name;
   }
-  return `${location.name} · ${region}`;
+  return `${name} · ${admin1}`;
 }
 
 /**
@@ -48,14 +45,17 @@ export function WeatherHero({
   isDay,
 }: WeatherHeroProps): JSX.Element {
   const { t } = useTranslation();
+  const { lang } = useSettings();
   const theme = useTheme();
   const palette = theme.dark ? glass.dark : glass.light;
   const info = getWeatherInfo(weatherCode, isDay);
+  // 搜索地点自带中英两份文本，GPS 地点由反查按当前语言提供
+  const text = getLocalizedText(location, lang);
   // GPS 反查失败时名称为空，兜底显示「当前位置」
   const label =
-    location.name === ""
+    text.name === undefined || text.name === ""
       ? t("location.current")
-      : formatLocationLabel(location);
+      : formatLocationLabel(text.name, text.admin1);
 
   return (
     <View style={styles.container}>
