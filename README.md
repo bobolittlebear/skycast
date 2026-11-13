@@ -31,6 +31,10 @@
 - 骨架屏、分级错误页、离线缓存（24 小时）
 
 ---
+## 视频演示
+https://github.com/user-attachments/assets/1c8e9495-f94b-461b-a5e1-3b3a2c4840cf
+
+---
 
 ## 关键取舍
 
@@ -221,7 +225,7 @@ src/
 
 几条具体规则：
 
-- **常量提取的门槛是「重复」而不是「看起来像常量」**。只有两个以上文件用到，才提到 `theme/tokens.ts` 或模块顶部的具名常量；只在一个组件里用的值就地定义，避免全局命名空间被一次性常量塞满。
+- **只有被两个以上文件用到，才提取为常量**。
 - **类型不跨层泄漏**。zod schema 推导出的响应类型只在 `services/` 内部使用，向上暴露的是 `WeatherBundle`、`Location` 这类领域模型。
 - **命名与文件一致**。`WeatherHero.tsx` 导出 `WeatherHero`；hook 以 `use` 开头；纯函数用动词开头（`formatPrecipitation`、`cleanAdminName`）。
 - **不写桶文件（index.ts 统一导出）**。直接按路径 import，依赖关系一眼可见，也避免循环引用。
