@@ -70,6 +70,7 @@ export function LocationSheetSearch({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         {showHint && (
           <Text

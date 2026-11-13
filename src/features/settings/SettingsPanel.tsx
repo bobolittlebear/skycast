@@ -10,9 +10,14 @@ import {
   Text,
   useTheme,
 } from 'react-native-paper';
-import { FLOATING_BUTTON_SIZE } from '../../components/ui/FloatingIconButton';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { isLang, type Lang } from '../../i18n/language';
-import { borderRadius, spacing, typography } from '../../theme/tokens';
+import {
+  BOTTOM_CONTROL_HEIGHT,
+  borderRadius,
+  spacing,
+  typography,
+} from '../../theme/tokens';
 import {
   isThemeMode,
   useSettings,
@@ -51,14 +56,22 @@ function renderSegmentIcon(
   return SegmentIcon;
 }
 
-/** 左下角弹出的设置面板：语言与主题两组选项 */
+/**
+ * 左下角弹出的设置面板：语言与主题两组选项。
+ * 底边距同时包含安全区与 FAB 高度，避免压住左下角设置按钮。
+ */
 export function SettingsPanel({ visible, onDismiss }: SettingsPanelProps): JSX.Element {
   const { t } = useTranslation();
   const theme = useTheme();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const { lang, themeMode, setLang, setThemeMode } = useSettings();
 
   const panelWidth = Math.min(PANEL_MAX_WIDTH, width - spacing.md * 2);
+  // FAB 的底边距是 insets.bottom + spacing.md，面板必须再多让出一个按钮高度，
+  // 否则带 Home Indicator 的机型上面板会压住按钮上沿
+  const panelBottom =
+    insets.bottom + BOTTOM_CONTROL_HEIGHT + spacing.md + spacing.sm;
   // 极窄屏下三个分段放不下图标 + 文案，只保留图标（无障碍标签仍在）
   const showThemeLabels = panelWidth >= 320;
 
@@ -98,6 +111,7 @@ export function SettingsPanel({ visible, onDismiss }: SettingsPanelProps): JSX.E
           styles.panel,
           {
             width: panelWidth,
+            bottom: panelBottom,
             backgroundColor: theme.colors.surface,
             borderColor: theme.colors.outline,
           },
@@ -165,8 +179,6 @@ const styles = StyleSheet.create({
   panel: {
     position: 'absolute',
     left: spacing.md,
-    // 底边离开 FAB：按钮自身 16 的下边距 + 按钮高度 + 一段间距
-    bottom: FLOATING_BUTTON_SIZE + spacing.md + spacing.sm,
     padding: spacing.md,
     borderRadius: borderRadius.xl,
     borderWidth: 1,

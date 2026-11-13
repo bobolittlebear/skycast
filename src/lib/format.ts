@@ -8,6 +8,23 @@ export function roundTemp(value: number): number {
 }
 
 /**
+ * 降水量展示：Open-Meteo 的精度是 0.1 mm，不能用 roundTemp 取整，
+ * 否则 0.4 mm 会被显示成 0。单位固定为 mm。
+ * 非有限数或 <= 0 返回 "0 mm"；0 < value < 0.1 返回 "<0.1 mm"；
+ * 其余四舍五入到 1 位小数，整数结果不带 ".0"。
+ */
+export function formatPrecipitation(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) {
+    return "0 mm";
+  }
+  if (value < 0.1) {
+    return "<0.1 mm";
+  }
+  const rounded = Math.round(value * 10) / 10;
+  return `${Number.isInteger(rounded) ? rounded : rounded.toFixed(1)} mm`;
+}
+
+/**
  * 角度换算成 8 方位索引：0 为北，顺时针递增（东 2、南 4、西 6）。
  * 负数与超过 360 的角度都会先归一到 [0, 360)。
  */

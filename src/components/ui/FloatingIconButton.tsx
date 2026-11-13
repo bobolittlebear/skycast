@@ -3,10 +3,13 @@ import { Pressable, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { borderRadius, glass, spacing, typography } from '../../theme/tokens';
-
-/** 悬浮按钮尺寸，SettingsPanel 用它计算面板与按钮的间距 */
-export const FLOATING_BUTTON_SIZE = spacing.xxl;
+import {
+  BOTTOM_CONTROL_HEIGHT,
+  borderRadius,
+  glass,
+  spacing,
+  typography,
+} from '../../theme/tokens';
 
 export type FloatingIconButtonPosition = 'left' | 'right';
 
@@ -63,8 +66,8 @@ export function FloatingIconButton({
 const styles = StyleSheet.create({
   button: {
     position: 'absolute',
-    width: FLOATING_BUTTON_SIZE,
-    height: FLOATING_BUTTON_SIZE,
+    width: BOTTOM_CONTROL_HEIGHT,
+    height: BOTTOM_CONTROL_HEIGHT,
     borderRadius: borderRadius.full,
     borderWidth: 1,
     alignItems: 'center',

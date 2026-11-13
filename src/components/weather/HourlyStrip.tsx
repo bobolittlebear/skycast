@@ -16,7 +16,7 @@ export interface HourlyStripProps {
   currentTime: string;
 }
 
-const ITEM_WIDTH = 56;
+const ITEM_WIDTH = 36;
 const VISIBLE_HOURS = 24;
 
 /**

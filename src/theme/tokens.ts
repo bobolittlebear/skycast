@@ -97,6 +97,9 @@ export const borderRadius: BorderRadius = {
 /** 最小可点触控尺寸；无障碍要求下所有交互元素都不应小于该值 */
 export const MIN_TOUCH_TARGET = 44;
 
+/** 底栏控件统一高度：地点胶囊与左右悬浮按钮等高，三者顶边与底边才对齐 */
+export const BOTTOM_CONTROL_HEIGHT = 34;
+
 export const typography: Typography = {
   fontSize: {
     xs: 12,

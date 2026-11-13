@@ -25,6 +25,7 @@ const ROW_HEIGHT = 40;
  *
  * 以列表形式展示未来 N 天的天气预报，数据包括天气状况（晴、多云等）、
  * 最低气温和最高气温。支持单日或多日展示，N 通过 daily 数组长度控制。
+ * 每一行整行作为读屏焦点，一次读出日期、天气与温度区间；
  * 当数组为空时展示空状态提示。
  */
 export function DailyForecastCard({
@@ -56,16 +57,25 @@ export function DailyForecastCard({
           {daily.map((item) => {
             const info = getWeatherInfo(item.weatherCode, true);
             const isToday = item.date === todayKey;
+            const dayLabel = isToday
+              ? t("weather.today")
+              : formatWeekdayShort(item.date, timezone, lang);
+            const rangeLabel = `${roundTemp(
+              item.temperatureMin,
+            )}° ~ ${roundTemp(item.temperatureMax)}°`;
 
             return (
-              <View key={item.date} style={styles.row}>
+              <View
+                key={item.date}
+                style={styles.row}
+                accessible
+                accessibilityLabel={`${dayLabel}, ${t(info.i18nKey)}, ${rangeLabel}`}
+              >
                 <Text
                   numberOfLines={1}
                   style={[styles.day, { color: palette.textPrimary }]}
                 >
-                  {isToday
-                    ? t("weather.today")
-                    : formatWeekdayShort(item.date, timezone, lang)}
+                  {dayLabel}
                 </Text>
 
                 <View style={styles.iconSlot}>
@@ -80,8 +90,7 @@ export function DailyForecastCard({
                   numberOfLines={1}
                   style={[styles.range, { color: palette.textPrimary }]}
                 >
-                  {roundTemp(item.temperatureMin)}° ~{" "}
-                  {roundTemp(item.temperatureMax)}°
+                  {rangeLabel}
                 </Text>
               </View>
             );

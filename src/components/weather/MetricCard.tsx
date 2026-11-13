@@ -20,7 +20,11 @@ export interface MetricCardProps {
   style?: StyleProp<ViewStyle>;
 }
 
-/** 通用指标卡：标题、主值（可带图标）与一行补充说明 */
+/**
+ * 通用指标卡：标题、主值（可带图标）与一行补充说明。
+ * 读屏时整张卡作为一个焦点，按「标题, 数值, 补充说明」一次读完；
+ * caption 为空时不拼入，避免出现尾部空逗号。
+ */
 export function MetricCard({
   title,
   value,
@@ -30,40 +34,46 @@ export function MetricCard({
 }: MetricCardProps): JSX.Element {
   const theme = useTheme();
   const palette = theme.dark ? glass.dark : glass.light;
+  const hasCaption = caption !== undefined && caption.length > 0;
+  const accessibilityLabel = hasCaption
+    ? `${title}, ${value}, ${caption}`
+    : `${title}, ${value}`;
 
   return (
     <GlassCard style={style}>
-      <Text
-        numberOfLines={1}
-        style={[styles.title, { color: palette.textPrimary }]}
-      >
-        {title}
-      </Text>
+      <View accessible accessibilityLabel={accessibilityLabel}>
+        <Text
+          numberOfLines={1}
+          style={[styles.title, { color: palette.textPrimary }]}
+        >
+          {title}
+        </Text>
 
-      <View style={styles.valueRow}>
-        {icon !== undefined ? (
-          <MaterialCommunityIcons
-            name={icon}
-            size={18}
-            color={palette.textPrimary}
-          />
+        <View style={styles.valueRow}>
+          {icon !== undefined ? (
+            <MaterialCommunityIcons
+              name={icon}
+              size={18}
+              color={palette.textPrimary}
+            />
+          ) : null}
+          <Text
+            numberOfLines={1}
+            style={[styles.value, { color: palette.textPrimary }]}
+          >
+            {value}
+          </Text>
+        </View>
+
+        {hasCaption ? (
+          <Text
+            numberOfLines={1}
+            style={[styles.caption, { color: palette.textPrimary }]}
+          >
+            {caption}
+          </Text>
         ) : null}
-        <Text
-          numberOfLines={1}
-          style={[styles.value, { color: palette.textPrimary }]}
-        >
-          {value}
-        </Text>
       </View>
-
-      {caption !== undefined && caption.length > 0 ? (
-        <Text
-          numberOfLines={1}
-          style={[styles.caption, { color: palette.textPrimary }]}
-        >
-          {caption}
-        </Text>
-      ) : null}
     </GlassCard>
   );
 }

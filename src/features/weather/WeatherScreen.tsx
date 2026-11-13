@@ -22,6 +22,7 @@ import { WeatherHero } from "../../components/weather/WeatherHero";
 import { WeatherSkeleton } from "../../components/weather/WeatherSkeleton";
 import {
   formatPercent,
+  formatPrecipitation,
   formatSpeed,
   formatWindDirection,
   roundTemp,
@@ -170,13 +171,13 @@ export function WeatherScreen(): JSX.Element {
             />
             <MetricCard
               title={t("weather.precipitation")}
-              value={`${roundTemp(current.precipitation)} mm`}
+              value={formatPrecipitation(current.precipitation)}
               caption={
                 today === undefined
                   ? t("weather.noData")
-                  : `${t("weather.precipitationToday")} ${roundTemp(
+                  : `${t("weather.precipitationToday")} ${formatPrecipitation(
                       today.precipitationSum,
-                    )} mm`
+                    )}`
               }
               icon="weather-pouring"
               style={styles.halfCard}
