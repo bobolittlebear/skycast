@@ -1,13 +1,10 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import type { Lang } from '../../i18n/language';
+import { roundCoordinate } from '../../lib/geo';
 import {
   reverseGeocode,
   type ReverseGeocodeResult,
 } from '../../services/api/reverseGeocode';
-
-function roundCoordinate(value: number): number {
-  return Math.round(value * 10000) / 10000;
-}
 
 /**
  * 坐标反查是幂等操作（同样坐标 + 同样语言永远得到同样结果），

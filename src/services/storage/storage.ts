@@ -3,9 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 /** 所有存储 key 的统一前缀，避免与其他模块冲突 */
 const STORAGE_PREFIX = 'skycast.';
 
-/** 存储 key 常量：settings 保存语言与主题偏好 */
+/** 存储 key 常量：settings 保存偏好，locations 保存地点列表与当前选中项 */
 export const STORAGE_KEYS = {
   settings: `${STORAGE_PREFIX}settings`,
+  locations: `${STORAGE_PREFIX}locations`,
+  activeLocationId: `${STORAGE_PREFIX}activeLocationId`,
 } as const;
 
 /** 统一补全前缀，传入完整 key 时不会重复添加 */

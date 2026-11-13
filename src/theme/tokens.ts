@@ -1,4 +1,5 @@
 export type Spacing = {
+  xxs: number;
   xs: number;
   sm: number;
   md: number;
@@ -60,22 +61,23 @@ export type Color = {
 };
 
 export type BrandColors = {
-  primary: Color['primary'];
+  primary: Color["primary"];
   primaryVariant: string;
   secondary: string;
   accent: string;
-  background: Color['background'];
-  surface: Color['surface'];
-  text: Color['onBackground'];
-  textVariant: Color['onSurfaceVariant'];
-  border: Color['outline'];
-  success: Color['success'];
-  error: Color['error'];
-  warning: Color['warning'];
-  info: Color['info'];
+  background: Color["background"];
+  surface: Color["surface"];
+  text: Color["onBackground"];
+  textVariant: Color["onSurfaceVariant"];
+  border: Color["outline"];
+  success: Color["success"];
+  error: Color["error"];
+  warning: Color["warning"];
+  info: Color["info"];
 };
 
 export const spacing: Spacing = {
+  xxs: 2,
   xs: 4,
   sm: 8,
   md: 16,
@@ -91,6 +93,9 @@ export const borderRadius: BorderRadius = {
   xl: 16,
   full: 999,
 };
+
+/** 最小可点触控尺寸；无障碍要求下所有交互元素都不应小于该值 */
+export const MIN_TOUCH_TARGET = 44;
 
 export const typography: Typography = {
   fontSize: {
@@ -134,38 +139,38 @@ export type WeatherGradientTokens = {
 
 export const glass: GlassTokens = {
   light: {
-    backgroundColor: 'rgba(255, 255, 255, 0.30)',
-    borderColor: 'rgba(255, 255, 255, 0.50)',
-    textPrimary: '#FFFFFF',
-    textSecondary: 'rgba(255, 255, 255, 0.78)',
+    backgroundColor: "rgba(255, 255, 255, 0.30)",
+    borderColor: "rgba(255, 255, 255, 0.50)",
+    textPrimary: "#FFFFFF",
+    textSecondary: "rgba(255, 255, 255, 0.78)",
   },
   dark: {
-    backgroundColor: 'rgba(0, 0, 0, 0.24)',
-    borderColor: 'rgba(255, 255, 255, 0.22)',
-    textPrimary: '#FFFFFF',
-    textSecondary: 'rgba(255, 255, 255, 0.72)',
+    backgroundColor: "rgba(0, 0, 0, 0.24)",
+    borderColor: "rgba(255, 255, 255, 0.22)",
+    textPrimary: "#FFFFFF",
+    textSecondary: "rgba(255, 255, 255, 0.72)",
   },
 };
 
 export const weatherGradient: WeatherGradientTokens = {
-  dayClear: ['#1B6CD6', '#3F8BE8', '#8FC4F4'],
-  nightClear: ['#08152F', '#142A52', '#25406E'],
-  dayCloudy: ['#51677E', '#748A9F', '#9FB0C0'],
-  nightCloudy: ['#171F2B', '#263243', '#3A4A5E'],
+  dayClear: ["#1B6CD6", "#3F8BE8", "#8FC4F4"],
+  nightClear: ["#08152F", "#142A52", "#25406E"],
+  dayCloudy: ["#51677E", "#748A9F", "#9FB0C0"],
+  nightCloudy: ["#171F2B", "#263243", "#3A4A5E"],
 };
 
 export const brandColors: BrandColors = {
-  primary: '#2F80ED',
-  primaryVariant: '#5699FF',
-  secondary: '#7C3AED',
-  accent: '#EC4899',
-  background: '#FFFFFF',
-  surface: '#F5F5F5',
-  text: '#121212',
-  textVariant: '#666666',
-  border: '#E0E0E0',
-  success: '#10B981',
-  error: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
+  primary: "#2F80ED",
+  primaryVariant: "#5699FF",
+  secondary: "#7C3AED",
+  accent: "#EC4899",
+  background: "#FFFFFF",
+  surface: "#F5F5F5",
+  text: "#121212",
+  textVariant: "#666666",
+  border: "#E0E0E0",
+  success: "#10B981",
+  error: "#EF4444",
+  warning: "#F59E0B",
+  info: "#3B82F6",
 };

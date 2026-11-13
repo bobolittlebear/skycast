@@ -93,6 +93,7 @@ export function getWeatherInfo(
   };
 }
 
+/** 按 WMO 码取天气分组；未知码降级为 cloudy，保证背景始终可用 */
 export function getWeatherGroup(code: number): WeatherGroup {
   return WEATHER_CODES[code]?.group ?? 'cloudy';
 }

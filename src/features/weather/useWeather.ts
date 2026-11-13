@@ -3,12 +3,8 @@ import { useCallback } from "react";
 import { toAppError, type AppError } from "../../services/api/errors";
 import { fetchAirQuality } from "../../services/api/openMeteo/airQuality";
 import { fetchForecast } from "../../services/api/openMeteo/forecast";
+import { roundCoordinate } from "../../lib/geo";
 import type { AirQualityBundle, WeatherBundle } from "../../types/weather";
-
-/** query key 只使用 4 位小数，避免浮点抖动导致缓存碎片 */
-function roundCoordinate(value: number): number {
-  return Math.round(value * 10000) / 10000;
-}
 
 export interface UseWeatherResult {
   weather: WeatherBundle | undefined;

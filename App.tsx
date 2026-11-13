@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { FloatingIconButton } from "./src/components/ui/FloatingIconButton";
+import { LocationsProvider } from "./src/features/locations/LocationsContext";
+import { LocationSheet } from "./src/features/locations/LocationSheet";
 import { SettingsPanel } from "./src/features/settings/SettingsPanel";
 import {
   SettingsProvider,
@@ -19,7 +21,9 @@ export default function App(): JSX.Element {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <SettingsProvider>
-          <AppContent />
+          <LocationsProvider>
+            <AppContent />
+          </LocationsProvider>
         </SettingsProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
@@ -49,6 +53,7 @@ function AppContent(): JSX.Element {
 function HomeScreen(): JSX.Element {
   const { t } = useTranslation();
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [listVisible, setListVisible] = useState(false);
 
   return (
     <View style={styles.screen}>
@@ -61,9 +66,21 @@ function HomeScreen(): JSX.Element {
         accessibilityLabel={t("settings.title")}
       />
 
+      <FloatingIconButton
+        icon="format-list-bulleted"
+        position="right"
+        onPress={() => setListVisible(true)}
+        accessibilityLabel={t("location.listTitle")}
+      />
+
       <SettingsPanel
         visible={settingsVisible}
         onDismiss={() => setSettingsVisible(false)}
+      />
+
+      <LocationSheet
+        visible={listVisible}
+        onDismiss={() => setListVisible(false)}
       />
     </View>
   );

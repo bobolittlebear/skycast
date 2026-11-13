@@ -6,7 +6,15 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-        "ios": {
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "SkyCast 需要访问您的位置来显示当前位置的天气。SkyCast uses your location to show the weather where you are."
+        }
+      ]
+    ],
+    "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.skycast.app"
     },
@@ -27,6 +35,6 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
       "output": "single"
-    },
-      }
+    }
+  }
 }

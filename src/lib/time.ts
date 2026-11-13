@@ -239,6 +239,7 @@ export function localDateKey(iso: string, timezone: string): string {
   return `${year}-${month}-${day}`;
 }
 
+/** 判断两个壁钟时间在指定地点时区是否属于同一天 */
 export function isSameLocalDay(
   isoA: string,
   isoB: string,

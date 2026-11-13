@@ -19,6 +19,7 @@ export function formatWindDirection(degrees: number): number {
   return Math.round(normalized / 45) % 8;
 }
 
+/** 湿度等比例值四舍五入为整数百分比 */
 export function formatPercent(value: number): string {
   return `${Math.round(value)}%`;
 }

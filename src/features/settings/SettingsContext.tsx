@@ -42,6 +42,10 @@ async function persistSettings(settings: PersistedSettings): Promise<void> {
   await setJson(STORAGE_KEYS.settings, settings);
 }
 
+/**
+ * 设置 Provider：首屏等待本地偏好读取完成（ready）后再渲染，避免语言与主题闪烁；
+ * 语言、主题变更后立即写回本地。
+ */
 export function SettingsProvider({ children }: { children: ReactNode }): JSX.Element {
   const systemScheme = useColorScheme();
   // 首次启动：语言跟随系统，主题跟随系统
@@ -119,6 +123,9 @@ export function SettingsProvider({ children }: { children: ReactNode }): JSX.Ele
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
 
+/**
+ * 读取语言、主题与更新方法；在 Provider 外调用会抛错。
+ */
 export function useSettings(): SettingsContextValue {
   const context = useContext(SettingsContext);
   if (context === undefined) {

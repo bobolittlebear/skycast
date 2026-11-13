@@ -31,6 +31,7 @@ export class AppError extends Error {
   }
 }
 
+/** 判断错误是否已经是归一化后的 AppError */
 export function isAppError(error: unknown): error is AppError {
   return error instanceof AppError;
 }
